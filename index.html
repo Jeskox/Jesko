@@ -21,7 +21,6 @@
             justify-content: center;
         }
 
-        /* --- Animación de Ondas de Fondo con CSS --- */
         .background-waves {
             position: absolute;
             top: 0;
@@ -31,14 +30,12 @@
             z-index: 1;
             overflow: hidden;
         }
-
         .wave {
             position: absolute;
             border-radius: 50%;
             opacity: 0.15;
             filter: blur(80px);
         }
-
         .wave-1 {
             width: 800px;
             height: 800px;
@@ -47,7 +44,6 @@
             left: 50%;
             animation: wave-move-1 25s infinite alternate;
         }
-
         .wave-2 {
             width: 600px;
             height: 600px;
@@ -56,7 +52,6 @@
             left: 20%;
             animation: wave-move-2 30s infinite alternate;
         }
-
         @keyframes wave-move-1 {
             from { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
             to { transform: translate(-40%, -60%) rotate(360deg) scale(1.2); }
@@ -66,7 +61,6 @@
             to { transform: translate(-60%, -40%) rotate(-360deg) scale(1); }
         }
         
-        /* --- Lienzo para las Partículas de Sparkles --- */
         #particles-canvas {
             position: absolute;
             top: 0;
@@ -76,7 +70,6 @@
             z-index: 2;
         }
 
-        /* --- Contenido Principal --- */
         .content-wrapper {
             position: relative;
             z-index: 3;
@@ -103,7 +96,7 @@
         .name-input {
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50px; /* Completamente redondeado */
+            border-radius: 50px;
             color: #fff;
             font-size: 1.1rem;
             padding: 18px 30px;
@@ -118,33 +111,6 @@
             border-color: #fcd34d;
             box-shadow: 0 0 20px rgba(252, 211, 77, 0.4);
         }
-
-        /* --- Navegación y Header --- */
-        header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 2rem;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 4;
-        }
-        .logo { font-weight: 600; font-size: 1.5rem; }
-        nav a { color: #fff; text-decoration: none; margin: 0 1rem; transition: color 0.3s; }
-        nav a:hover { color: #fcd34d; }
-        .login-button {
-            background: transparent;
-            border: 1px solid #fff;
-            color: #fff;
-            padding: 0.7rem 1.5rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .login-button:hover { background: #fff; color: #000; }
     </style>
 </head>
 <body>
@@ -154,17 +120,6 @@
         <div class="wave wave-2"></div>
     </div>
     <canvas id="particles-canvas"></canvas>
-
-    <header>
-        <div class="logo">Company Logo</div>
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">About us</a>
-            <a href="#">Gallery</a>
-            <a href="#">Contact</a>
-        </nav>
-        <button class="login-button">Login</button>
-    </header>
 
     <div class="content-wrapper">
         <h1>¿Quién va a acceder?</h1>
@@ -176,7 +131,6 @@
     </div>
 
     <script>
-        // --- Lógica mejorada de animación de partículas ---
         const canvas = document.getElementById('particles-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
@@ -190,7 +144,7 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 1.5 + 0.5;
-                this.speedX = (Math.random() * 0.5 - 0.25) * 0.5; // Movimiento más lento y sutil
+                this.speedX = (Math.random() * 0.5 - 0.25) * 0.5;
                 this.speedY = (Math.random() * 0.5 - 0.25) * 0.5;
                 this.color = 'hsla(45, 100%, 70%, ' + (Math.random() * 0.7 + 0.2) + ')';
             }
@@ -233,7 +187,6 @@
             initParticles();
         });
         
-        // --- Lógica del formulario ---
         document.getElementById('access-form').addEventListener('submit', e => {
             e.preventDefault();
             const userName = document.getElementById('name-input').value.trim();
