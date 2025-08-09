@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistente IA</title>
-    <!-- Estilos del Chatbot que ya creamos, con la estética de ChatGPT -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
         
         :root {
-            --bg-dark: #212121;
-            --user-bubble: #38bdf8;
-            --bot-bubble: #424242;
-            --text-light: #eceff1;
-            --text-dark: #eceff1;
-            --border-color: #525252;
+            --bg-color: #343541; /* Color base de ChatGPT */
+            --input-bg: #40414f;
+            --text-color: #d1d5db;
         }
 
         body, html {
@@ -22,55 +18,40 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             font-family: 'Inter', sans-serif;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        main {
+        /* --- Pantalla de Bienvenida tipo ChatGPT --- */
+        #welcome-screen {
             flex-grow: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
         }
-
-        .welcome-message h1 {
-            font-weight: 500;
+        #welcome-screen h1 {
             font-size: 2.5rem;
+            font-weight: 500;
+            color: #fff;
         }
-        .welcome-message p {
-            font-size: 1.2rem;
-            color: #9e9e9e;
+        #welcome-screen p {
+            font-size: 1.1rem;
+            max-width: 500px;
         }
 
-        /* --- Estilos del Chatbot --- */
-        
-        .chat-bubble { display: none; } /* No necesitamos la burbuja en esta vista */
-
-        .chat-window {
-            position: fixed;
-            bottom: 0;
-            left: 0;
+        /* --- Contenedor Principal del Chat (inicialmente oculto) --- */
+        #chat-container {
+            flex-grow: 1;
+            display: none; /* Empieza oculto */
+            flex-direction: column;
             width: 100%;
             height: 100%;
-            background-color: var(--bg-dark);
-            border-radius: 0;
-            box-shadow: none;
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-        }
-
-        .chat-header {
-            padding: 15px 20px;
-            text-align: center;
-            font-size: 1.1rem;
-            color: #b0bec5;
-            flex-shrink: 0;
         }
 
         .chat-messages {
@@ -79,144 +60,171 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
             max-width: 800px;
             width: 100%;
-            margin: 0 auto; /* Centrar el contenedor de mensajes */
+            margin: 0 auto;
         }
         .chat-messages::-webkit-scrollbar { width: 8px; }
-        .chat-messages::-webkit-scrollbar-track { background: transparent; }
-        .chat-messages::-webkit-scrollbar-thumb { background: #424242; border-radius: 5px; }
+        .chat-messages::-webkit-scrollbar-track { background: #40414f; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #5a5b64; border-radius: 5px; }
 
         .message {
-            padding: 15px 20px;
-            border-radius: 12px;
-            max-width: 85%;
-            line-height: 1.6;
+            max-width: 90%;
+            line-height: 1.7;
             font-size: 1rem;
-        }
-        
-        .bot-message {
-            background-color: var(--bot-bubble);
-            color: var(--text-dark);
-            align-self: flex-start;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
         }
 
-        .user-message {
-            background-color: transparent; /* El usuario no tiene burbuja */
-            color: var(--text-light);
-            align-self: flex-end;
-            text-align: right;
+        .message .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 500;
         }
+        .bot-message .avatar { background-color: #19c37d; }
+        .user-message .avatar { background-color: #5b399a; }
         
+        .bot-message { align-self: flex-start; }
+        .user-message { align-self: flex-start; /* ChatGPT los alinea todos a la izquierda */ }
+        
+        /* --- Área del Input --- */
         .chat-input-area {
-            padding: 1rem 0;
+            padding: 1.5rem 0;
             flex-shrink: 0;
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
+            position: relative;
+        }
+        .chat-input-area::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(to top, var(--bg-color), transparent);
         }
 
         .chat-input {
             display: flex;
             align-items: center;
-            background-color: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 15px;
+            background-color: var(--input-bg);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
             padding: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
         .chat-input input {
             flex-grow: 1;
             border: none;
             background: transparent;
-            padding: 10px 15px;
-            color: var(--text-light);
-            font-size: 1.1rem;
+            padding: 10px;
+            color: #fff;
+            font-size: 1rem;
         }
         .chat-input input:focus { outline: none; }
-        .chat-input input::placeholder { color: #757575; }
 
         .chat-input button {
-            background-color: var(--border-color);
+            background-color: transparent;
             border: none;
-            border-radius: 10px;
             width: 40px;
             height: 40px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 10px;
+            color: #acacbe;
         }
-        .chat-input button svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--text-light);
-        }
-        
-        .typing-indicator { align-self: flex-start; /* ... (Estilos del indicador) */ }
+         .chat-input button:hover { color: #fff; }
     </style>
 </head>
 <body>
     
-    <!-- El chatbot ocupará toda la pantalla -->
-    <div class="chat-window" id="chat-window">
-        <div class="chat-header" id="chat-header">
-            Asistente IA
-        </div>
+    <div id="welcome-screen">
+        <h1 id="welcome-title">Bienvenido, Invitado</h1>
+        <p>Este es tu asistente personal de IA. Puedes comenzar haciendo cualquier pregunta en el cuadro de abajo.</p>
+    </div>
+
+    <div id="chat-container">
         <div class="chat-messages" id="chat-messages">
-            <!-- La bienvenida y los mensajes se añadirán aquí -->
+            <!-- Los mensajes del chat aparecerán aquí -->
         </div>
-        <div class="chat-input-area">
-            <div class="chat-input">
-                <input type="text" id="user-input" placeholder="Pregunta lo que sea...">
-                <button id="send-button" title="Enviar mensaje">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg>
-                </button>
-            </div>
-        </div>
+    </div>
+    
+    <div class="chat-input-area">
+        <form class="chat-input" id="chat-form">
+            <input type="text" id="user-input" placeholder="Pregunta lo que sea..." autocomplete="off" required>
+            <button id="send-button" title="Enviar mensaje">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4.54.146A.5.5 0 0 1 5.207.53l6.853 6.854a.5.5 0 0 1 0 .708l-6.853 6.854a.5.5 0 0 1-.708-.708L11.293 8 4.54 1.146a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
+        </form>
     </div>
 
     <script>
-        // =================================================================
-        // === ¡IMPORTANTE! REEMPLAZA ESTA URL POR LA TUYA DE PRODUCCIÓN ===
-        // =================================================================
         const N8N_WEBHOOK_URL = 'https://n8n.jeskocloud.online/webhook/a768f103-0624-462e-af4a-7c609efde2f9';
 
+        // --- Elementos del DOM ---
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const welcomeTitle = document.getElementById('welcome-title');
+        const chatContainer = document.getElementById('chat-container');
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-        const chatHeader = document.getElementById('chat-header');
+        const chatForm = document.getElementById('chat-form');
         
         let userName = 'Invitado';
+        let userInitial = 'I';
+        let chatStarted = false;
 
-        // --- Lógica para obtener el nombre y dar la bienvenida ---
+        // --- Inicialización al cargar la página ---
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const nameFromUrl = urlParams.get('name');
             if (nameFromUrl) {
                 userName = nameFromUrl;
+                userInitial = userName.charAt(0).toUpperCase();
             }
-            chatHeader.textContent = `Conversando con ${userName}`;
-            addMessage(`¡Hola ${userName}! Soy tu asistente personal. ¿Cómo puedo ayudarte a empezar?`, 'bot');
+            welcomeTitle.textContent = `Bienvenido, ${userName}`;
             userInput.focus();
         });
 
-        // --- Lógica del Chatbot (la que ya hemos depurado) ---
+        // --- Funciones del Chat ---
         function addMessage(text, sender) {
+            if (!chatStarted) {
+                welcomeScreen.style.display = 'none';
+                chatContainer.style.display = 'flex';
+                chatStarted = true;
+            }
+
             const messageElement = document.createElement('div');
             messageElement.classList.add('message', `${sender}-message`);
-            messageElement.textContent = text;
+
+            const avatar = document.createElement('div');
+            avatar.classList.add('avatar');
+            avatar.textContent = sender === 'user' ? userInitial : 'IA';
+            
+            const messageText = document.createElement('div');
+            messageText.classList.add('text');
+            messageText.textContent = text;
+            
+            messageElement.appendChild(avatar);
+            messageElement.appendChild(messageText);
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-
-        // ... (Aquí irían las funciones show/hide TypingIndicator si las quieres)
-
-        async function sendMessage() {
+        
+        async function handleFormSubmit(event) {
+            event.preventDefault();
             const messageText = userInput.value.trim();
             if (messageText === '') return;
 
@@ -227,32 +235,21 @@
                 const response = await fetch(N8N_WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: messageText, user: userName }) // Enviamos también el nombre del usuario
+                    body: JSON.stringify({ message: messageText, user: userName })
                 });
 
                 if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+                const data = await response.json();
                 
-                const responseText = await response.text();
-                if (!responseText) throw new Error("La respuesta del servidor está vacía.");
-                
-                const data = JSON.parse(responseText);
-                
-                const botReply = data.reply || 'Recibí tu mensaje, pero no tengo una respuesta configurada.';
-                addMessage(botReply, 'bot');
+                addMessage(data.reply || 'No he recibido una respuesta válida.', 'bot');
 
             } catch (error) {
                 console.error('Fallo la comunicación con n8n:', error);
-                addMessage(`Lo siento, ocurrió un error: ${error.message}`, 'bot');
+                addMessage(`Lo siento, ocurrió un error de conexión.`, 'bot');
             }
         }
 
-        sendButton.addEventListener('click', sendMessage);
-        userInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendMessage();
-            }
-        });
+        chatForm.addEventListener('submit', handleFormSubmit);
     </script>
 </body>
 </html>
