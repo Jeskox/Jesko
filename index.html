@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Asistente</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0c0a09; /* Negro ligeramente cálido */
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 500;
+            color: #fafafa;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .access-form {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .name-input {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.2rem;
+            padding: 15px 25px;
+            width: 300px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .name-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #fcd34d; /* Dorado al hacer foco */
+            box-shadow: 0 0 15px rgba(252, 211, 77, 0.3);
+        }
+
+        .submit-button {
+            background-color: #fcd34d;
+            color: #1e1b18;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 15px 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #fbbf24;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(252, 211, 77, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="container">
+        <h1>¿Quién va a acceder?</h1>
+        <form class="access-form" id="access-form">
+            <input type="text" id="name-input" class="name-input" placeholder="Escribe tu nombre..." required>
+            <button type="submit" class="submit-button">Acceder</button>
+        </form>
+    </div>
+
+    <script>
+        // --- Lógica de la animación de partículas ---
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray;
+
+        const particleCount = 150;
+        const particleColor = 'rgba(252, 211, 77,'; // Color dorado base
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) {
+                    this.directionX = -this.directionX;
+                }
+                if (this.y > canvas.height || this.y < 0) {
+                    this.directionY = -this.directionY;
+                }
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < particleCount; i++) {
+                let size = (Math.random() * 2) + 0.5;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * .4) - .2;
+                let directionY = (Math.random() * .4) - .2;
+                let color = particleColor + (Math.random() * 0.5 + 0.2) + ')'; // Opacidad aleatoria
+
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0,0,innerWidth, innerHeight);
+
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+        }
+
+        init();
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            init();
+        });
+
+        // --- Lógica del formulario ---
+        const accessForm = document.getElementById('access-form');
+        const nameInput = document.getElementById('name-input');
+
+        accessForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const userName = nameInput.value.trim();
+            if (userName) {
+                // Redirigimos a la página de chat, pasando el nombre como parámetro en la URL
+                window.location.href = `chat.html?name=${encodeURIComponent(userName)}`;
+            }
+        });
+
+    </script>
+</body>
+</html>
